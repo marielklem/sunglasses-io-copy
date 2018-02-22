@@ -1,0 +1,20 @@
+{
+  "name": "sunglasses-io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node app/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "finalhandler": "latest",
+    "http": "latest",
+    "querystring": "^0.2.0",
+    "rand-token": "^0.4.0",
+    "router": "^1.3.2"
+  }
+}
