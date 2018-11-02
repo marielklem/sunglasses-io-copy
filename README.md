@@ -1,5 +1,5 @@
-## Sunglasses.io Server Starter
+## Sunglasses.io Server
 
-This project is a starter for the Sunglasses.io eval.  
+This project has been created by a student at Project Shift, a software engineering fellowship located in Downtown Durham.  The work in this repository is wholly of the student based on a sample starter project that can be accessed by looking at the repository that this project forks.
 
-Don't forget to update this file with helpful hints on how to run the application.
+If you have any questions about this project or the program in general, visit projectshift.io or email hello@projectshift.io.
