@@ -1,0 +1,231 @@
+swagger: '2.0'
+info:
+  title: Sunglasses io
+  description: An API to shop for sunglasses
+  version: 1.0.0
+host: api.sunglasses.io
+schemes:
+  - https
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /api/brands:
+    get:
+      summary: Brands
+      description: |
+        The Goals endpoint allows you to search goals based on different filters such as category and popularity as well as a search string
+      tags:
+        - Brands
+      responses:
+        '200':
+          description: An array of brands
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Brand'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /api/brands/{id}/products:
+    get:
+      summary: Products for each brand
+      description: >-
+        The User Profile endpoint returns information about the Uber user that
+        has authorized with the application.
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          description: The id of the brand to display products
+          required: true
+          type: string
+      responses:
+        '200':
+          description: An array of all products for each brand
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Products'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /api/products:
+    get:
+      summary: All Products
+      description: >- 
+        All products available in the store available for purchase.
+      tags:
+        - Products
+      parameters:
+        - name: query
+          in: query
+          description: Query from search for all sunglasses
+          required: true
+          type: string
+          format: int32
+      responses:
+        '200':
+          description: An array of products
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Products'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /api/me/cart:
+    get:
+      summary: all items in a users cart
+      description: |
+        This will allow a user to view all the items currently in their cart
+      parameters:
+        - name: id
+          in: path
+          description: The id of the goal to achieve
+          required: true
+          type: string
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Current items in cart
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Cart'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: same product purchased multiple times
+      description: |
+        Update the quantity for each product
+      parameters:
+        - name: productId
+          in: path
+          description: The id of the product to update
+          required: true
+          type: integer
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Updated quantity of a product
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /api/me/cart/{productId}:
+    post:
+      summary: Add a specific item to a cart
+      description: |
+        This endpoint allows you add specific items to your cart
+      parameters:
+        - name: productId
+          in: path
+          description: The id of the item to purchase
+          required: true
+          type: string
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart updated successfully
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Delete a specific item
+      description: |
+        Remove one specific item from your cart
+      parameters:
+        - name: productId
+          in: path
+          description: The id of the item to remove from cart
+          required: true
+          type: string
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Achievement is successful
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Products:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for a goal.
+        example: 1
+      categoryId:
+        type: string
+        description: The id of the category this goal belongs to.
+        example: 1
+      name:
+        type: string
+        description: Name of the style of sunglasses
+        example: Superglasses
+      description:
+        type: string
+        description: Description of product.
+        example: The best glasses in the world
+      price:
+        type: integer
+        format: int32
+        description: The cost of the pair of sunglasses
+        example: 150
+      imageURL:
+        type: string
+        description: The URL for the image representing the goal
+        example: "http://sunglasses.jpg"
+  Brand:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The unique identifier given to the brand
+        example: 1
+      name:
+        type: string
+        description: The name of the category
+        example: Oakley
+  Cart:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The unique identifier given to each product
+        example: 1
+      brand:
+        type: string
+        description: The name of the brand
+        example: Oakley
+      name:
+        type: string
+        description: The name of the product
+        example: Superglass
+      quantity:
+        type: integer
+        description: Total number of each product purchased
+        example: 3
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
