@@ -33,7 +33,6 @@ describe('The API', () => {
           done();
         });
     })
-  })
   it('it should GET all the products for a specific brand', done => {
     //act
     chai
@@ -45,7 +44,59 @@ describe('The API', () => {
         expect(response.body).to.have.lengthOf(2);
         done();
       });
+    })
   })
+  describe('/GET products', () => {
+    it('it should have a query parameter', done => {
+      //act
+      chai
+        .request(server)
+        .get('/api/products?query=')
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(400);
+          done();
+        });
+    });
+    it('it should return a product based on name', done => {
+      //act
+      chai
+        .request(server)
+        .get('/api/products?query=Sugar')
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(200);
+          expect(response.body).to.be.an('array');
+          expect(response.body).to.have.lengthOf(1);
+          done();
+        });
+    });
+    it('it should return a result regardless of case', done => {
+      //act
+      chai
+        .request(server)
+        .get('/api/products?query=SUGAR')
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(200);
+          expect(response.body).to.have.lengthOf(1);
+          done();
+        });
+    });
+    it('if no results match, it should return a string', done => {
+      //act
+      chai
+        .request(server)
+        .get('/api/products?query=Avocado')
+        // assert
+        .end((error, response) => {
+          expect(response.body).to.be.an('string');
+          done();
+        });
+    });  
+  });
+
+  
 })
 
 

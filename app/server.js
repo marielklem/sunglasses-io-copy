@@ -4,6 +4,7 @@ var finalHandler = require('finalhandler');
 var queryString = require('querystring');
 var Router = require('router');
 var bodyParser = require('body-parser');
+var url = require('url')
 var uid = require('rand-token').uid;
 
 const PORT = 3001;
@@ -12,15 +13,10 @@ let brands = [];
 let products = [];
 let users = [];
 
-// Setup state
-
-
-
 //Setup router
 var myRouter = Router();
 myRouter.use(bodyParser.json());
 
-//Create a server
 //Create a server
 const server = http.createServer(function (request, response) {
   myRouter(request, response, finalHandler(request, response))
@@ -60,5 +56,36 @@ myRouter.get('/api/brands/:id/products', function (request, response) {
   }
 })
 
+myRouter.get('/api/products', function (request, response) {
+  const myUrl = request.url
+  const query = url.parse(myUrl).query
+  const myQuery = queryString.parse(query)
+  //convert query result to all lowercase
+  const lowQuery = myQuery.query.toLowerCase()
+  console.log(lowQuery)
+  //if no search parameters, return an error
+  if (lowQuery === "") {
+    response.writeHead(400, "Please enter a valid search criteria");
+    response.end();
+  } else {
+   
+    //search products for query that matches name of product
+    const searchResults =  products.filter(product => {
+      //convert product name to lowercase
+      const name = product.name.toLowerCase()
+      if (name.includes(lowQuery)) {
+        return product
+      }
+    })
+    //if no results are found, send string back with message
+    if (searchResults.length === 0) {
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify("Sorry, no glasses match that search request"))
+    } else {
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify(searchResults))
+    }
+  }
+})
 
 module.exports = server
