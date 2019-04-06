@@ -2,7 +2,7 @@ let chai = require('chai')
 let { expect } = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../app/server');
-let should = chai.should();
+
 chai.use(chaiHttp);
 
 describe('The API', () => {
@@ -134,7 +134,48 @@ describe('The API', () => {
         });
     })
   });
+  describe('GET Cart', () => {
+    // it('user should be logged in to view cart', done => {
+    //     //act
+    //   chai
+    //     .request(server)
+    //     .get('/api/me/cart')
+    //     // assert
+    //     .end((error, response) => {
+    //       expect(response).to.have.status(403);
+    //       done();
+    //     });
+    // });
+    it('should tell user to start shopping if no items in cart', done => {
+    chai
+      .request(server)
+      .get('/api/me/cart')
+      .set({token: "73kJQq7yVjUp1BQz", username: "lazywolf342"}, {token: "83kJQq7yVjUp1BQz", username: "yellowleopard753"})
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(401);
+        done();
+      });
+    });
+    it('should return all items in cart', done => {
+      // arrange
+      let cart = {
+          "id": "11",
+          "brandId": "5",
+          "name": "Habanero",
+          "description": "The spiciest glasses in the world",
+          "price": 153,
+      };
+      chai
+        .request(server)
+        .get('/api/me/cart')
+        .set({token: "73kJQq7yVjUp1BQz", username: "lazywolf342"}, cart)
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(401);
+          done();
+        });
+      });
 
+  })
 })
-
-

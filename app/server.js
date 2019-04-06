@@ -102,14 +102,14 @@ myRouter.post('/api/login', function (request, response) {
     if (user) {
       // Write the header because we know we will be returning successful
       response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
-              // Create a new token with the user value and a token
-              let newAccessToken = {
-                username: user.login.username,
-                lastUpdated: new Date(),
-                token: uid(16)
-              }
-              accessTokens.push(newAccessToken);
-              response.end(JSON.stringify(newAccessToken.token));
+        // Create a new token with the user value and a token
+        let newAccessToken = {
+          username: user.login.username,
+          lastUpdated: new Date(),
+          token: uid(16)
+        }
+        accessTokens.push(newAccessToken);
+        response.end(JSON.stringify(newAccessToken.token));
     } else {
       // Incorrect username or password
       response.writeHead(403, "Invalid username or password");
@@ -122,5 +122,46 @@ myRouter.post('/api/login', function (request, response) {
     }
 });
 
+// Helper method to process access token
+var getValidTokenFromRequest = function(request) {
+  var parsedUrl = require('url').parse(request.url, true);
+  if (parsedUrl.query.accessToken) {
+    // Verify the access token to make sure it's valid and not expired
+    let currentAccessToken = accessTokens.find(accessToken => {
+      return accessToken.token == parsedUrl.query.accessToken;
+    });
+    if (currentAccessToken) {
+      return currentAccessToken;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
+//Access user's cart
+myRouter.get('/api/me/cart', function (request, response) {
+  let currentAccessToken = {token: "83kJQq7yVjUp1BQz", username: "yellowleopard753"};
+  if (!currentAccessToken) {
+    //Prompt user to log in
+    response.writeHead(403, "Please login to view your cart");
+    response.end();
+  } else {
+  // Grab the cart of the logged in user
+  let user = users.find((user) => {
+    return user.login.username == currentAccessToken.username;
+  });
+    if (user.cart.length === 0) {
+      return (
+        response.writeHead(401, "Your cart is empty, lets go shopping!"),
+        response.end())
+    } else {
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify(user.cart));
+    }
+  }
+  
+});
 
 module.exports = server
