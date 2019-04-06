@@ -12,6 +12,7 @@ const PORT = 3001;
 let brands = [];
 let products = [];
 let users = [];
+let accessTokens = [];
 
 //Setup router
 var myRouter = Router();
@@ -27,6 +28,8 @@ const server = http.createServer(function (request, response) {
   brands = JSON.parse(fs.readFileSync("initial-data/brands.json", "utf8"))
 
   products = JSON.parse(fs.readFileSync("initial-data/products.json", "utf8"))
+
+  users = JSON.parse(fs.readFileSync("initial-data/users.json", "utf8"))
 });
 
 //Get all the brands
@@ -35,6 +38,7 @@ myRouter.get('/api/brands', function (request, response) {
   response.end(JSON.stringify(brands))
 })
 
+//All products for each brand
 myRouter.get('/api/brands/:id/products', function (request, response) {
   //verify that a brand exists with that ID
   let brandId = brands.find((brand) => {
@@ -56,13 +60,14 @@ myRouter.get('/api/brands/:id/products', function (request, response) {
   }
 })
 
+//Search products call
 myRouter.get('/api/products', function (request, response) {
   const myUrl = request.url
   const query = url.parse(myUrl).query
   const myQuery = queryString.parse(query)
   //convert query result to all lowercase
   const lowQuery = myQuery.query.toLowerCase()
-  console.log(lowQuery)
+
   //if no search parameters, return an error
   if (lowQuery === "") {
     response.writeHead(400, "Please enter a valid search criteria");
@@ -87,5 +92,35 @@ myRouter.get('/api/products', function (request, response) {
     }
   }
 })
+
+//Login Call
+myRouter.post('/api/login', function (request, response) {
+  if (request.body.username && request.body.password) {
+    let user = users.find((user)=>{
+        return user.login.username == request.body.username && user.login.password == request.body.password;
+    });
+    if (user) {
+      // Write the header because we know we will be returning successful
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+              // Create a new token with the user value and a token
+              let newAccessToken = {
+                username: user.login.username,
+                lastUpdated: new Date(),
+                token: uid(16)
+              }
+              accessTokens.push(newAccessToken);
+              response.end(JSON.stringify(newAccessToken.token));
+    } else {
+      // Incorrect username or password
+      response.writeHead(403, "Invalid username or password");
+      response.end();
+      }
+    } else {
+    // Error for login failure
+    response.writeHead(403, "Please login to view your cart");
+    response.end();
+    }
+});
+
 
 module.exports = server

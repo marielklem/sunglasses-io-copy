@@ -95,8 +95,46 @@ describe('The API', () => {
         });
     });  
   });
+  describe('/POST login', () => {
+    it('it should have a username and password in the request', done => {
+      //act
+      chai
+        .request(server)
+        .post('/api/login')
+        .send({username: '', password: ''})
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(403);
+          done();
+        });
+    })
+    it('it should return an error if incorrect user or incorrect password', done => {
+      //act
+      chai
+        .request(server)
+        .post('/api/login')
+        .send({username: 'lazywolf342', password: 'sleepywolf'})
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(403);
+          done();
+        });
+    })
+    it('if a username and password match a current user it should assign an access token ', done => {
+      //act
+      chai
+        .request(server)
+        .post('/api/login')
+        .send({username: 'lazywolf342', password: 'tucker'})
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(200);
+          expect(response.body).to.have.lengthOf(16);
+          done();
+        });
+    })
+  });
 
-  
 })
 
 
