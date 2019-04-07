@@ -124,11 +124,11 @@ myRouter.post('/api/login', function (request, response) {
 
 // Helper method to process access token
 var getValidTokenFromRequest = function(request) {
-  var parsedUrl = require('url').parse(request.url, true);
-  if (parsedUrl.query.accessToken) {
+
+  if (request.headers.xauth) {
     // Verify the access token to make sure it's valid and not expired
     let currentAccessToken = accessTokens.find(accessToken => {
-      return accessToken.token == parsedUrl.query.accessToken;
+      return accessToken.token == request.headers.xauth;
     });
     if (currentAccessToken) {
       return currentAccessToken;
@@ -142,25 +142,43 @@ var getValidTokenFromRequest = function(request) {
 
 //Access user's cart
 myRouter.get('/api/me/cart', function (request, response) {
-  let currentAccessToken = {token: "83kJQq7yVjUp1BQz", username: "yellowleopard753"};
+  let currentAccessToken = getValidTokenFromRequest(request);
   if (!currentAccessToken) {
     //Prompt user to log in
     response.writeHead(403, "Please login to view your cart");
     response.end();
   } else {
-  // Grab the cart of the logged in user
-  let user = users.find((user) => {
-    return user.login.username == currentAccessToken.username;
-  });
-    if (user.cart.length === 0) {
-      return (
-        response.writeHead(401, "Your cart is empty, lets go shopping!"),
-        response.end())
-    } else {
-      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
-      response.end(JSON.stringify(user.cart));
+    // Grab the cart of the logged in user
+    let user = users.find((user) => {
+      return user.login.username == currentAccessToken.username;
+    });
+        response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+        response.end(JSON.stringify(user.cart));
     }
-  }
+});
+
+//Add item to users cart
+myRouter.post('/api/me/cart/:productId', function (request, response) {
+  let currentAccessToken = getValidTokenFromRequest(request);
+  if (!currentAccessToken) {
+    //Prompt user to log in
+    response.writeHead(403, "Please login to add to your cart");
+    response.end();
+  } else {
+    // Find the coorisponding user and product based on username and id
+    let user = users.find((user) => {
+      return user.login.username == currentAccessToken.username;
+    });
+    let product = products.find((product) => {
+      return product.id == request.body.productId;
+    });
+    if (!product) {
+      response.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify("Sorry, we can't find those glasses!"))
+    }
+
+
+    }
   
 });
 

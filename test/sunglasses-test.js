@@ -5,7 +5,10 @@ let server = require('../app/server');
 
 chai.use(chaiHttp);
 
+
+
 describe('The API', () => {
+  let token = ''
   describe('/GET brands', () => {
     it('it should GET all the brands', done => {
       //act
@@ -130,52 +133,71 @@ describe('The API', () => {
         .end((error, response) => {
           expect(response).to.have.status(200);
           expect(response.body).to.have.lengthOf(16);
+          accessToken = response.body
           done();
         });
     })
   });
   describe('GET Cart', () => {
-    // it('user should be logged in to view cart', done => {
-    //     //act
-    //   chai
-    //     .request(server)
-    //     .get('/api/me/cart')
-    //     // assert
-    //     .end((error, response) => {
-    //       expect(response).to.have.status(403);
-    //       done();
-    //     });
-    // });
-    it('should tell user to start shopping if no items in cart', done => {
-    chai
-      .request(server)
-      .get('/api/me/cart')
-      .set({token: "73kJQq7yVjUp1BQz", username: "lazywolf342"}, {token: "83kJQq7yVjUp1BQz", username: "yellowleopard753"})
-      // assert
-      .end((error, response) => {
-        expect(response).to.have.status(401);
-        done();
-      });
-    });
-    it('should return all items in cart', done => {
-      // arrange
-      let cart = {
-          "id": "11",
-          "brandId": "5",
-          "name": "Habanero",
-          "description": "The spiciest glasses in the world",
-          "price": 153,
-      };
+    it('user should be logged in to view cart', done => {
+        //act
       chai
         .request(server)
         .get('/api/me/cart')
-        .set({token: "73kJQq7yVjUp1BQz", username: "lazywolf342"}, cart)
         // assert
         .end((error, response) => {
-          expect(response).to.have.status(401);
+          expect(response).to.have.status(403);
+          done();
+        });
+    });
+    it('should return all items in cart', done => {
+      chai
+        .request(server)
+        .get('/api/me/cart')
+        .set('xauth', accessToken)
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(200);
           done();
         });
       });
+  })
+  describe('Add product to cart', () => {
+    it('user should be logged in to add to cart', done => {
+      //act
+    chai
+      .request(server)
+      .post('/api/me/cart/:productId')
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(403);
+        done();
+      });
+    });
 
+    it('should return error if no product exists', done => {
+      //act
+    chai
+      .request(server)
+      .post('/api/me/cart/99')
+      .set('xauth', accessToken)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(404);
+        done();
+      });
+    });
+    it('should return error if no product exists', done => {
+      //act
+    chai
+      .request(server)
+      .post('/api/me/cart/99')
+      .set('xauth', accessToken)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(404);
+        done();
+      });
+    });
   })
 })
