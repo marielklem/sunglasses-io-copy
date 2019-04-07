@@ -170,11 +170,15 @@ myRouter.post('/api/me/cart/:productId', function (request, response) {
       return user.login.username == currentAccessToken.username;
     });
     let product = products.find((product) => {
-      return product.id == request.body.productId;
+      return product.id == request.params.productId;
     });
     if (!product) {
       response.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }))
       response.end(JSON.stringify("Sorry, we can't find those glasses!"))
+    } else {
+      user.cart.push(product)
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify(user));
     }
 
 

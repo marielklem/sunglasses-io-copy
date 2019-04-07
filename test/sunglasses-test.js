@@ -174,7 +174,6 @@ describe('The API', () => {
         done();
       });
     });
-
     it('should return error if no product exists', done => {
       //act
     chai
@@ -187,15 +186,16 @@ describe('The API', () => {
         done();
       });
     });
-    it('should return error if no product exists', done => {
+    it('should update the cart with new product', done => {
       //act
     chai
       .request(server)
-      .post('/api/me/cart/99')
+      .post('/api/me/cart/7')
       .set('xauth', accessToken)
       // assert
       .end((error, response) => {
-        expect(response).to.have.status(404);
+        expect(response).to.have.status(200);
+        expect(response.body.cart[0].name).to.contain('QDogs Glasses')
         done();
       });
     });
