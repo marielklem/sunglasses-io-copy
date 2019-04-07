@@ -12,7 +12,7 @@ const PORT = 3001;
 let brands = [];
 let products = [];
 let users = [];
-let accessTokens = [];
+let accessTokens = [{token: '73kJQq7yVjUp1BQz', username: 'lazywolf342'}];
 
 //Setup router
 var myRouter = Router();
@@ -124,7 +124,6 @@ myRouter.post('/api/login', function (request, response) {
 
 // Helper method to process access token
 var getValidTokenFromRequest = function(request) {
-
   if (request.headers.xauth) {
     // Verify the access token to make sure it's valid and not expired
     let currentAccessToken = accessTokens.find(accessToken => {
@@ -152,9 +151,15 @@ myRouter.get('/api/me/cart', function (request, response) {
     let user = users.find((user) => {
       return user.login.username == currentAccessToken.username;
     });
+    //return error if cart is empty
+    if (user.cart.length === 0) {
+      response.writeHead(404, "Your cart is empty, lets go shopping!")
+      response.end(JSON.stringify(user.cart));
+    } else {
         response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
         response.end(JSON.stringify(user.cart));
-    }
+    }      
+  }
 });
 
 //Add item to users cart
@@ -180,10 +185,38 @@ myRouter.post('/api/me/cart/:productId', function (request, response) {
       response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
       response.end(JSON.stringify(user));
     }
+  }
+});
+//Delete items from users cart
+myRouter.delete('/api/me/cart/:productId', function (request, response) {
+  let currentAccessToken = getValidTokenFromRequest(request);
+  if (!currentAccessToken) {
+    //Prompt user to log in
+    response.writeHead(403, "Please login to edit to your cart");
+    response.end();
+  } else {
+    // Find the coorisponding user and product based on username and id
+    let user = users.find((user) => {
+      return user.login.username == currentAccessToken.username;
+    });
+    let product = products.find((product) => {
+      return product.id == request.params.productId;
+    });
+    let cart = user.cart
+    let productIndex = cart.findIndex((product) => {
+      return product.id == request.params.productId;
+    });
 
-
+    if (!product) {
+      response.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify("Sorry, those glasses aren't in your cart!"))
+    } else {
+      user.cart.splice(productIndex)
+      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.end(JSON.stringify(user.cart));
     }
-  
+  }
+
 });
 
 module.exports = server

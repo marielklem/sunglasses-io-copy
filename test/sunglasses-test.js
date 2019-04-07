@@ -150,6 +150,24 @@ describe('The API', () => {
           done();
         });
     });
+    it('Should return error if cart is empty', done => {
+      chai
+        .request(server)
+        .get('/api/me/cart')
+        .set('xauth', accessToken)
+        // assert
+        .end((error, response) => {
+          expect(response).to.have.status(404);
+          done();
+        })
+        //fill cart for next test
+      chai
+        .request(server)
+        .post('/api/me/cart/11')
+        .set('xauth', accessToken)
+        .end()
+    })
+
     it('should return all items in cart', done => {
       chai
         .request(server)
@@ -187,6 +205,11 @@ describe('The API', () => {
       });
     });
     it('should update the cart with new product', done => {
+      chai
+      .request(server)
+      .post('/api/me/cart/4')
+      .set('xauth', accessToken)
+      .end()
       //act
     chai
       .request(server)
@@ -195,9 +218,35 @@ describe('The API', () => {
       // assert
       .end((error, response) => {
         expect(response).to.have.status(200);
-        expect(response.body.cart[0].name).to.contain('QDogs Glasses')
+        expect(response.body.cart[2].name).to.contain('QDogs Glasses')
         done();
       });
     });
   })
+  describe('Delete product from cart', () => {
+    it('user should be logged in to delete from the cart', done => {
+      //act
+    chai
+      .request(server)
+      .del('/api/me/cart/:productId')
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(403);
+        done();
+      });
+    });
+    it('should remove one item from cart', done => {
+      //act
+    chai
+      .request(server)
+      .del('/api/me/cart/7')
+      .set('xauth', accessToken)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(200);
+        expect(response.body).not.to.contain('QDogs Glasses')
+        done();
+      });
+    });
+  });
 })
