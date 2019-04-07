@@ -12,7 +12,7 @@ const PORT = 3001;
 let brands = [];
 let products = [];
 let users = [];
-let accessTokens = [{token: '73kJQq7yVjUp1BQz', username: 'yellowleopard753'}];
+let accessTokens = [];
 
 //Setup router
 var myRouter = Router();
