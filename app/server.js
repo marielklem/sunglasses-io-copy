@@ -245,9 +245,15 @@ myRouter.delete('/api/me/cart/:productId', function (request, response) {
       response.writeHead(404, "Sorry, those glasses aren't in your cart!")
       response.end()
     } else {
-      user.cart.splice(productIndex)
-      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
-      response.end(JSON.stringify(user.cart));
+      if ("quantity" in product) {
+        product.quantity -= 1
+        response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+        response.end(JSON.stringify(user.cart));
+      } else {
+        user.cart.splice(productIndex)
+        response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+        response.end(JSON.stringify(user.cart));
+      }
     }
   }
 

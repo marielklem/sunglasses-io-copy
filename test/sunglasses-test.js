@@ -261,6 +261,7 @@ describe('The API', () => {
       .set('xauth', accessToken)
       // assert
       .end((error, response) => {
+        console.log(response.body)
         expect(response).to.have.status(200);
         expect(response.body.cart[2].name).to.contain('QDogs Glasses')
         done();
@@ -289,6 +290,18 @@ describe('The API', () => {
       .end((error, response) => {
         expect(response).to.have.status(200);
         expect(response.body).not.to.contain('QDogs Glasses')
+        done();
+      });
+    });
+    it('should remove one item from cart', done => {
+      //act
+    chai
+      .request(server)
+      .del('/api/me/cart/11')
+      .set('xauth', accessToken)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(200);
         done();
       });
     });
