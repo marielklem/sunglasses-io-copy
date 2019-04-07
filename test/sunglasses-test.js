@@ -180,6 +180,50 @@ describe('The API', () => {
         });
       });
   })
+  describe('POST item to cart', () => {
+    it('user should be logged in to add to cart', done => {
+      //act
+    chai
+      .request(server)
+      .post('/api/me/cart')
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(403);
+        done();
+      });
+    });
+    it('should not post if item not already in cart', done => {
+      const newItem = {
+          id: 2,
+      }
+      chai
+      .request(server)
+      .post('/api/me/cart')
+      .set('xauth', accessToken)
+      .send(newItem)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(404);
+        done();
+    });
+  })
+    it('should not duplicate the same item', done => {
+      const newItem = {
+          "id": "11",
+      }
+      chai
+      .request(server)
+      .post('/api/me/cart')
+      .set('xauth', accessToken)
+      .send(newItem)
+      // assert
+      .end((error, response) => {
+        expect(response).to.have.status(200);
+        expect(response.body[0].quantity).to.equal(2)
+        done();
+    });
+  })
+});
   describe('Add product to cart', () => {
     it('user should be logged in to add to cart', done => {
       //act

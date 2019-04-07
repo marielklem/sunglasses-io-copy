@@ -12,7 +12,7 @@ const PORT = 3001;
 let brands = [];
 let products = [];
 let users = [];
-let accessTokens = [{token: '73kJQq7yVjUp1BQz', username: 'lazywolf342'}];
+let accessTokens = [{token: '73kJQq7yVjUp1BQz', username: 'yellowleopard753'}];
 
 //Setup router
 var myRouter = Router();
@@ -187,6 +187,40 @@ myRouter.post('/api/me/cart/:productId', function (request, response) {
     }
   }
 });
+
+//Update quantities of users cart
+myRouter.post('/api/me/cart', function(request, response) {
+  let currentAccessToken = getValidTokenFromRequest(request);
+  if (!currentAccessToken) {
+    //Prompt user to log in
+    response.writeHead(403, "Please login to add to your cart");
+    response.end();
+  } else {
+    // Find the coorisponding user and product based on username and id
+    let user = users.find((user) => {
+      return user.login.username == currentAccessToken.username;
+    });
+    //find product in user's cart
+    let cart = user.cart
+    let product = cart.find((product) => {
+      return product.id == request.body.id;
+    });
+    if (!product) {
+      response.writeHead(404, "Sorry, that item cannot be found!")
+      response.end()
+    } else {
+      if ("quantity" in product) {
+        product.quantity += 1
+      } else {
+        product.quantity = 2
+      }
+    }
+    response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+    response.end(JSON.stringify(user.cart));
+  }
+});
+
+
 //Delete items from users cart
 myRouter.delete('/api/me/cart/:productId', function (request, response) {
   let currentAccessToken = getValidTokenFromRequest(request);
@@ -208,8 +242,8 @@ myRouter.delete('/api/me/cart/:productId', function (request, response) {
     });
 
     if (!product) {
-      response.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }))
-      response.end(JSON.stringify("Sorry, those glasses aren't in your cart!"))
+      response.writeHead(404, "Sorry, those glasses aren't in your cart!")
+      response.end()
     } else {
       user.cart.splice(productIndex)
       response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
