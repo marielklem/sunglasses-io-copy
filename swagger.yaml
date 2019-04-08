@@ -291,25 +291,6 @@ definitions:
         type: string
         description: The name of the category
         example: Oakley
-  Cart:
-    type: object
-    properties:
-      id:
-        type: string
-        description: The unique identifier given to each product
-        example: 1
-      brand:
-        type: string
-        description: The name of the brand
-        example: Oakley
-      name:
-        type: string
-        description: The name of the product
-        example: Superglass
-      quantity:
-        type: integer
-        description: Total number of each product purchased
-        example: 3
   Error:
     type: object
     properties:
