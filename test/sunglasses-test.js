@@ -93,6 +93,7 @@ describe('The API', () => {
         .get('/api/products?query=Avocado')
         // assert
         .end((error, response) => {
+          expect(response).to.have.status(405);
           expect(response.body).to.be.an('string');
           done();
         });
@@ -261,7 +262,6 @@ describe('The API', () => {
       .set('xauth', accessToken)
       // assert
       .end((error, response) => {
-        console.log(response.body)
         expect(response).to.have.status(200);
         expect(response.body.cart[2].name).to.contain('QDogs Glasses')
         done();

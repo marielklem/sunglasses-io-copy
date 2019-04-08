@@ -84,7 +84,7 @@ myRouter.get('/api/products', function (request, response) {
     })
     //if no results are found, send string back with message
     if (searchResults.length === 0) {
-      response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      response.writeHead(405, Object.assign({ 'Content-Type': 'application/json' }))
       response.end(JSON.stringify("Sorry, no glasses match that search request"))
     } else {
       response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
@@ -102,6 +102,16 @@ myRouter.post('/api/login', function (request, response) {
     if (user) {
       // Write the header because we know we will be returning successful
       response.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }))
+      // We have a successful login, if we already have an existing access token, use that
+      let currentAccessToken = accessTokens.find((tokenObject) => {
+        return tokenObject.username == user.login.username;
+      });
+
+      // Update time period
+      if (currentAccessToken) {
+        currentAccessToken.lastUpdated = new Date();
+        response.end(JSON.stringify(currentAccessToken.token));
+      } else {
         // Create a new token with the user value and a token
         let newAccessToken = {
           username: user.login.username,
@@ -110,6 +120,7 @@ myRouter.post('/api/login', function (request, response) {
         }
         accessTokens.push(newAccessToken);
         response.end(JSON.stringify(newAccessToken.token));
+      }
     } else {
       // Incorrect username or password
       response.writeHead(403, "Invalid username or password");
@@ -127,7 +138,7 @@ var getValidTokenFromRequest = function(request) {
   if (request.headers.xauth) {
     // Verify the access token to make sure it's valid and not expired
     let currentAccessToken = accessTokens.find(accessToken => {
-      return accessToken.token == request.headers.xauth;
+      return (accessToken.token == request.headers.xauth && ((new Date) - accessToken.lastUpdated));
     });
     if (currentAccessToken) {
       return currentAccessToken;
