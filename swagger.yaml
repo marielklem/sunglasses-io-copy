@@ -24,6 +24,12 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Brand'
+        '404':
+          description: The requested brand doesn't exist in the database
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -49,6 +55,12 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Products'
+        '404':
+          description: The requested brand doesn't exist in the database
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -69,11 +81,23 @@ paths:
           format: int32
       responses:
         '200':
-          description: An array of products
+          description: An array of products that match the search criteria
           schema:
             type: array
             items:
               $ref: '#/definitions/Products'
+        '400':
+          description: Invalid search
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
+        '405':
+          description: Search returned zero results
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -102,16 +126,17 @@ paths:
           schema:
             type: string
           headers:
-            X-Rate-Limit:
-              type: integer
-              format: int32
-              description: calls per hour allowed by the user
+            xauth:
+              type: string
+              description: authorization token
             X-Expires-After:
               type: string
               format: date-time
               description: date in UTC when token expires
-        '400':
-          description: Invalid username/password supplied
+        '403':
+          description: Login Error
+          schema:
+            $ref: '#/definitions/Error'
   /api/me/cart:
     get:
       summary: all items in a users cart
@@ -132,6 +157,14 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Cart'
+        '403':
+          description: Login Error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No items in cart
+          schema:
+            $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -151,6 +184,14 @@ paths:
       responses:
         '200':
           description: Updated quantity of a product
+        '403':
+          description: Login Error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No items product with that ID exists 
+          schema:
+            $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -171,6 +212,14 @@ paths:
       responses:
         '200':
           description: Cart updated successfully
+        '403':
+          description: Login Error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No items product with that ID exists
+          schema:
+            $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -190,6 +239,14 @@ paths:
       responses:
         '200':
           description: Achievement is successful
+        '403':
+          description: Login Error
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Item with ID is not in cart
+          schema:
+            $ref: '#/definitions/Error'
         default:
           description: Unexpected error
           schema:
@@ -260,6 +317,4 @@ definitions:
         type: integer
         format: int32
       message:
-        type: string
-      fields:
         type: string
